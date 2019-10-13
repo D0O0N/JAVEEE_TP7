@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import javax.sql.DataSource;
+import static org.hsqldb.Tokens.SQL;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import static org.junit.Assert.*;
 
 import org.hsqldb.cmdline.SqlFile;
 import org.hsqldb.cmdline.SqlToolError;
+import static org.hsqldb.cmdline.sqltool.SqlFileScanner.SQL;
 
 
 public class BankingTest {
@@ -62,6 +65,23 @@ public class BankingTest {
 		// Les balances doivent avoir été mises à jour dans les 2 comptes
 		assertEquals("Balance incorrecte !", before0 - amount, myDAO.balanceForCustomer(fromCustomer), 0.001f);
 		assertEquals("Balance incorrecte !", before1 + amount, myDAO.balanceForCustomer(toCustomer), 0.001f);				
+	}
+        
+        @Test
+	public void failTransfer() throws Exception {
+		float amount = 1000.0f;
+		int fromCustomer = 0; // Le client 0 dispose de 100€ dans le jeu de tests
+		int toCustomer = 1;
+		// On mémorise les balances dans les deux comptes avant la transaction
+		float before0 = myDAO.balanceForCustomer(fromCustomer);
+		float before1 = myDAO.balanceForCustomer(toCustomer);
+		// On exécute la transaction, qui doit réussir
+                try {
+                    myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
+                    fail("La transaction ne devrait pas être possible");
+                } catch (java.sql.SQLException e) {
+                }
+			
 	}
 	
 
