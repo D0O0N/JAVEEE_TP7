@@ -68,7 +68,7 @@ public class BankingTest {
 	}
         
         @Test
-	public void failTransfer() throws Exception {
+	public void failNotEnoughMoney() throws Exception {
 		float amount = 1000.0f;
 		int fromCustomer = 0; // Le client 0 dispose de 100€ dans le jeu de tests
 		int toCustomer = 1;
@@ -80,6 +80,22 @@ public class BankingTest {
                     myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
                     fail("La transaction ne devrait pas être possible");
                 } catch (java.sql.SQLException e) {
+                }
+			
+	}
+        @Test
+	public void failCustomerDontExist() throws Exception {
+		float amount = 50.0f;
+		int fromCustomer = 0; // Le client 0 dispose de 100€ dans le jeu de tests
+		int toCustomer = 100;
+		// On mémorise les balances dans les deux comptes avant la transaction
+		float before0 = myDAO.balanceForCustomer(fromCustomer);
+		float before1 = myDAO.balanceForCustomer(toCustomer);
+		// On exécute la transaction, qui doit réussir
+                try {
+                    myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
+                    fail("La transaction ne devrait pas être possible");
+                } catch (Exception e) {
                 }
 			
 	}
